@@ -43,7 +43,7 @@ async def get_download_fn(core, url, msgId):
             'PostFix': utils.get_image_postfix(tempStorage.read(20)), })
     return download_fn
 
-def produce_msg(core, msgList):
+async def produce_msg(core, msgList):
     ''' for messages types
      * 40 msg, 43 videochat, 50 VOIPMSG, 52 voipnotifymsg
      * 53 webwxvoipnotifymsg, 9999 sysnotice
@@ -88,7 +88,7 @@ def produce_msg(core, msgList):
                     'Type': 'Text',
                     'Text': m['Content'],}
         elif m['MsgType'] == 3 or m['MsgType'] == 47: # picture
-            download_fn = get_download_fn(core,
+            download_fn = await get_download_fn(core,
                 '%s/webwxgetmsgimg' % core.loginInfo['url'], m['NewMsgId'])
             msg = {
                 'Type'     : 'Picture',
@@ -96,7 +96,7 @@ def produce_msg(core, msgList):
                     'png' if m['MsgType'] == 3 else 'gif'),
                 'Text'     : download_fn, }
         elif m['MsgType'] == 34: # voice
-            download_fn = get_download_fn(core,
+            download_fn = await  get_download_fn(core,
                 '%s/webwxgetvoice' % core.loginInfo['url'], m['NewMsgId'])
             msg = {
                 'Type': 'Recording',
@@ -172,7 +172,7 @@ def produce_msg(core, msgList):
                     'Type': 'Attachment',
                     'Text': download_atta, }
             elif m['AppMsgType'] == 8:
-                download_fn = get_download_fn(core,
+                download_fn = await  get_download_fn(core,
                     '%s/webwxgetmsgimg' % core.loginInfo['url'], m['NewMsgId'])
                 msg = {
                     'Type'     : 'Picture',
@@ -251,7 +251,7 @@ def produce_group_chat(core, msg):
         msg['IsAt'] = False
     else:
         msg['ActualNickName'] = member.get('DisplayName', '') or member['NickName']
-        atFlag = '@' + (chatroom['Self'].get('DisplayName', '') or core.storageClass.nickName)
+        atFlag = '@' + (chatroom['core'].get('DisplayName', '') or core.storageClass.nickName)
         msg['IsAt'] = (
             (atFlag + (u'\u2005' if u'\u2005' in msg['Content'] else ' '))
             in msg['Content'] or msg['Content'].endswith(atFlag))
@@ -275,9 +275,9 @@ async def send_raw_msg(self, msgType, content, toUserName):
     headers = { 'ContentType': 'application/json; charset=UTF-8', 'User-Agent' : config.USER_AGENT}
     r = self.s.post(url, headers=headers,
         data=json.dumps(data, ensure_ascii=False).encode('utf8'))
-    return ReturnValue(rawResponse=r)
+    return ReturnValue(rawResponse=r), data
 
-async def send_msg(self, msg='Test Message', toUserName=None):
+async def send_msg(self,msg='Test Message', toUserName=None):
     logger.debug('Request to send a text message to %s: %s' % (toUserName, msg))
     r = await self.send_raw_msg(1, msg, toUserName)
     return r

@@ -77,12 +77,13 @@ async def login(self, enableCmdQR=False, picDir=None, qrCallback=None, EventScan
                 if isLoggedIn is not None:
                     logger.info('Please press confirm on your phone.')
                     isLoggedIn = None
-                    payload = EventScanPayload(
-                        status=ScanStatus.Waiting,
-                        qrcode=f"https://login.weixin.qq.com/l/{self.uuid}"
-                    )
-                    event_stream.emit('scan', payload)
-                    await asyncio.sleep(0.1)
+                    # payload = EventScanPayload(
+                    #     status=ScanStatus.Waiting,
+                    #     qrcode=f"https://login.weixin.qq.com/l/{self.uuid}"
+                    # )
+                    # event_stream.emit('scan', payload)
+                    await asyncio.sleep(15)
+                    
             elif status != '408':
                 payload = EventScanPayload(
                     status=ScanStatus.Cancel,
@@ -301,7 +302,7 @@ async def show_mobile_login(self):
 
 async def start_receiving(self, exitCallback=None, getReceivingFnOnly=False):
     self.alive = True
-    def maintain_loop():
+    async def maintain_loop():
         retryCount = 0
         while self.alive:
             try:
@@ -313,7 +314,7 @@ async def start_receiving(self, exitCallback=None, getReceivingFnOnly=False):
                 else:
                     msgList, contactList = self.get_msg()
                     if msgList:
-                        msgList = produce_msg(self, msgList)
+                        msgList = await produce_msg(self, msgList)
                         for msg in msgList:
                             self.msgList.put(msg)
                     if contactList:
@@ -343,9 +344,15 @@ async def start_receiving(self, exitCallback=None, getReceivingFnOnly=False):
         else:
             logger.info('LOG OUT!')
     if getReceivingFnOnly:
-        return maintain_loop
+        return await maintain_loop()
     else:
-        maintainThread = threading.Thread(target=maintain_loop)
+        print('测试')
+        def new_thread():
+            async def main_ok():
+                await asyncio.sleep(0.1)                 
+                await maintain_loop()
+            asyncio.run(main_ok())
+        maintainThread = threading.Thread(target=new_thread)
         maintainThread.setDaemon(True)
         maintainThread.start()
 
