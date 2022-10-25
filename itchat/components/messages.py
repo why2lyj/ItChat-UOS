@@ -280,7 +280,7 @@ def send_raw_msg(self, msgType, content, toUserName):
 
 def send_msg(self, msg='Test Message', toUserName=None):
     logger.debug('Request to send a text message to %s: %s' % (toUserName, msg))
-    r = self.send_raw_msg(1, msg, toUserName)
+    r = send_raw_msg(1, msg, toUserName)
     return r
 
 def _prepare_file(fileDir, file_=None):

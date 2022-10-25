@@ -3,7 +3,7 @@ import os, platform
 VERSION = '1.5.0.dev'
 
 # use this envrionment to initialize the async & sync componment
-ASYNC_COMPONENTS = os.environ.get('ITCHAT_UOS_ASYNC', False)
+ASYNC_COMPONENTS = os.environ.get('ITCHAT_UOS_ASYNC', True)
 
 BASE_URL = 'https://login.weixin.qq.com'
 OS = platform.system() # Windows, Linux, Darwin

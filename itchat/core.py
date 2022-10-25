@@ -332,6 +332,7 @@ class Core(object):
             it is defined in components/messages.py
         '''
         raise NotImplementedError()
+
     def send_image(self, fileDir=None, toUserName=None, mediaId=None, file_=None):
         ''' send image
             for options

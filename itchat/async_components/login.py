@@ -5,6 +5,7 @@ import json
 import random
 import traceback
 import logging
+from turtle import update
 try:
     from httplib import BadStatusLine
 except ImportError:
@@ -113,7 +114,8 @@ async def login(self, enableCmdQR=False, picDir=None, qrCallback=None, EventScan
     logger.info('Loading the contact, this may take a little while.')
     await self.web_init()
     await self.show_mobile_login()
-    self.get_contact(True)
+    self.get_friends(update=True)
+    self.get_chatrooms(update=True)
     if hasattr(loginCallback, '__call__'):
         r = await loginCallback(self.storageClass.userName)
     else:
@@ -346,7 +348,6 @@ async def start_receiving(self, exitCallback=None, getReceivingFnOnly=False):
     if getReceivingFnOnly:
         return await maintain_loop()
     else:
-        print('测试')
         def new_thread():
             async def main_ok():
                 await asyncio.sleep(0.1)                 

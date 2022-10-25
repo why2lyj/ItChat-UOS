@@ -100,6 +100,7 @@ class Storage(object):
             elif name is not None:
                 matchList = []
                 for m in self.chatroomList:
+                    print(m['NickName'])
                     if name in m['NickName']:
                         matchList.append(copy.deepcopy(m))
                 return matchList
